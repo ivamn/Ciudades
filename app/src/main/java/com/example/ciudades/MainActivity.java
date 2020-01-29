@@ -1,55 +1,112 @@
 package com.example.ciudades;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+
+    private EditText usuario, pass;
+    private Button crear, entrar;
+    private FirebaseAuth auth;
+    private FirebaseAuth.AuthStateListener authListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        usuario = findViewById(R.id.editUsuario);
+        pass = findViewById(R.id.editPass);
+        crear = findViewById(R.id.buttonCrear);
+        entrar = findViewById(R.id.buttonEntrar);
+
+        auth = FirebaseAuth.getInstance();
+
+        authListener = new FirebaseAuth.AuthStateListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    Toast.makeText(MainActivity.this, user.getEmail() + " logeado", Toast.LENGTH_LONG).show();
+                    auth = firebaseAuth;
+                }
+            }
+        };
+
+        crear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                auth.createUserWithEmailAndPassword(usuario.getText().toString(), pass.getText().toString())
+                        .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(MainActivity.this, "Usuario creado", Toast.LENGTH_LONG).show();
+                                    iniciarAplicacion(task.getResult().getUser().getEmail().split("@")[0]);
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Problemas al crear el usuario", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
             }
         });
+
+        entrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                auth.signInWithEmailAndPassword(usuario.getText().toString(), pass.getText().toString())
+                        .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    iniciarAplicacion(task.getResult().getUser().getEmail().split("@")[0]);
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Error de autenticación", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+            }
+        });
+
+    }
+
+    private void iniciarAplicacion(String user) {
+        Intent intent = new Intent(this, MainApplication.class);
+        intent.putExtra("usuario", user);
+        startActivity(intent);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    protected void onStart() {
+        super.onStart();
+        auth.addAuthStateListener(authListener);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    protected void onStop() {
+        super.onStop();
+        if (auth != null) {
+            auth.removeAuthStateListener(authListener);
+            auth.signOut();
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }
