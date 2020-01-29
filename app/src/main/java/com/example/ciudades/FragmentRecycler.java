@@ -23,7 +23,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 public class FragmentRecycler extends Fragment {
 
     private RecyclerView recyclerView;
-    private Adaptador adaptador;
 
     @Nullable
     @Override
@@ -38,7 +37,7 @@ public class FragmentRecycler extends Fragment {
     private void cargarRecycler(Query query){
         FirestoreRecyclerOptions<Ciudad> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ciudad>()
                 .setQuery(query, Ciudad.class).setLifecycleOwner(this).build();
-        adaptador = new Adaptador(firestoreRecyclerOptions);
+        Adaptador adaptador = new Adaptador(firestoreRecyclerOptions);
         recyclerView.setAdapter(adaptador);
         adaptador.startListening();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
