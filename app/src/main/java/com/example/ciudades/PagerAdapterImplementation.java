@@ -6,9 +6,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
+import com.google.firebase.firestore.DocumentReference;
+
 public class PagerAdapterImplementation extends FragmentStatePagerAdapter {
 
     private int numTabs;
+    private DocumentReference userReference;
 
     @Nullable
     @Override

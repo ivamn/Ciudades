@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 public class CiudadViewModel extends ViewModel {
 
-    public enum Accion {ADD_REQUEST, ADD_ACTION}
+    public enum Accion {ADD_REQUEST, ADD_ACTION, EDIT_REQUEST, EDIT_ACTION}
 
     private MutableLiveData<CiudadContainer> liveData;
 

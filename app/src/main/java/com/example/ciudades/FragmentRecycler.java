@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,20 +20,26 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public class FragmentRecycler extends Fragment {
+public class FragmentRecycler extends Fragment implements View.OnClickListener {
 
     private RecyclerView recyclerView;
     private CiudadViewModel ciudadViewModel;
+    private Adaptador adaptador;
+    private DocumentReference userReference;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_recycler, container, false);
+        userReference = FirebaseFirestore.getInstance().collection("usuarios")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         recyclerView = view.findViewById(R.id.recycler);
         inicializarAdaptador();
         ciudadViewModel = new ViewModelProvider(getActivity()).get(CiudadViewModel.class);
@@ -52,14 +59,15 @@ public class FragmentRecycler extends Fragment {
     private void cargarRecycler(Query query){
         FirestoreRecyclerOptions<Ciudad> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Ciudad>()
                 .setQuery(query, Ciudad.class).setLifecycleOwner(this).build();
-        Adaptador adaptador = new Adaptador(firestoreRecyclerOptions);
+        adaptador = new Adaptador(firestoreRecyclerOptions);
         recyclerView.setAdapter(adaptador);
         adaptador.startListening();
+        adaptador.setOnClickListener(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private void inicializarAdaptador() {
-        FirebaseFirestore.getInstance().collection("ciudades").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        userReference.collection("ciudades").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -70,5 +78,12 @@ public class FragmentRecycler extends Fragment {
                 }
             }
         });
+    }
+
+    @Override
+    public void onClick(View v) {
+        String key = adaptador.getSnapshots().getSnapshot(recyclerView.getChildAdapterPosition(v)).getId();
+        Ciudad c = adaptador.getItem(recyclerView.getChildAdapterPosition(v));
+        ciudadViewModel.setData(new CiudadContainer(c, CiudadViewModel.Accion.EDIT_REQUEST, key));
     }
 }

@@ -18,7 +18,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
-public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder> {
+public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder> implements View.OnClickListener {
+
+    private View.OnClickListener onClickListener;
 
     public Adaptador(@NonNull FirestoreRecyclerOptions<Ciudad> options) {
         super(options);
@@ -33,7 +35,21 @@ public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.holder, parent, false);
+        view.setOnClickListener(onClickListener);
         return new Holder(view);
+    }
+
+    public void setOnClickListener(View.OnClickListener onClickListener) {
+        if (onClickListener != null) {
+            this.onClickListener = onClickListener;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (onClickListener != null) {
+            onClickListener.onClick(v);
+        }
     }
 
     class Holder extends RecyclerView.ViewHolder {
@@ -49,7 +65,7 @@ public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder
         }
 
         public void bind(Ciudad item) {
-            text.setText(String.format("%s/%s", item.getPais(), item.getNombre()));
+            text.setText(String.format("%s/%s", item.getPais(), item.getCiudad()));
             if (item.getImagen() == null || item.getImagen().equals("")) {
                 StorageReference reference = FirebaseStorage.getInstance().getReference(DEFAULT_IMAGE);
                 reference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {

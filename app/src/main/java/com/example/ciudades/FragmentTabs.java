@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.firestore.DocumentReference;
 
 public class FragmentTabs extends Fragment {
 
@@ -23,7 +24,7 @@ public class FragmentTabs extends Fragment {
         View v = inflater.inflate(R.layout.tabs_fragment, container, false);
         tabs = v.findViewById(R.id.tab_layout);
         final ViewPager pager = v.findViewById(R.id.view_pager);
-        PagerAdapterImplementation adapter = new PagerAdapterImplementation(getFragmentManager(), 2);
+        PagerAdapterImplementation adapter = new PagerAdapterImplementation(getActivity().getSupportFragmentManager(), 2);
         tabs.setupWithViewPager(pager);
         pager.setAdapter(adapter);
         pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));

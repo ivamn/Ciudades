@@ -10,6 +10,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -60,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    Toast.makeText(MainActivity.this, "Usuario creado", Toast.LENGTH_LONG).show();
-                                    iniciarAplicacion(task.getResult().getUser().getEmail().split("@")[0]);
+                                    String email = task.getResult().getUser().getEmail();
+                                    iniciarAplicacion(email);
                                 } else {
                                     Toast.makeText(MainActivity.this, "Problemas al crear el usuario", Toast.LENGTH_LONG).show();
                                 }
@@ -78,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    iniciarAplicacion(task.getResult().getUser().getEmail().split("@")[0]);
+                                    String email = task.getResult().getUser().getEmail();
+                                    iniciarAplicacion(email);
                                 } else {
                                     Toast.makeText(MainActivity.this, "Error de autenticación", Toast.LENGTH_LONG).show();
                                 }

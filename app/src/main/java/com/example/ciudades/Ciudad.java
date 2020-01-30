@@ -1,12 +1,12 @@
 package com.example.ciudades;
 
 class Ciudad {
-    private String nombre;
+    private String ciudad;
     private String pais;
     private String imagen;
 
-    public Ciudad(String nombre, String pais, String imagen) {
-        this.nombre = nombre;
+    public Ciudad(String ciudad, String pais, String imagen) {
+        this.ciudad = ciudad;
         this.pais = pais;
         this.imagen = imagen;
     }
@@ -14,12 +14,12 @@ class Ciudad {
     public Ciudad() {
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getCiudad() {
+        return ciudad;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
     }
 
     public String getPais() {
