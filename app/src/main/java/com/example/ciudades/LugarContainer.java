@@ -1,30 +1,30 @@
 package com.example.ciudades;
 
-public class CiudadContainer {
-    private Ciudad ciudad;
+class LugarContainer {
+    private Lugar lugar;
     private Util.Accion accion;
     private String key;
 
-    public CiudadContainer(Ciudad ciudad, Util.Accion accion) {
-        this.ciudad = ciudad;
-        this.accion = accion;
-    }
-
-    public CiudadContainer(Ciudad ciudad, Util.Accion accion, String key) {
-        this.ciudad = ciudad;
+    public LugarContainer(Lugar lugar, Util.Accion accion, String key) {
+        this.lugar = lugar;
         this.accion = accion;
         this.key = key;
     }
 
-    public CiudadContainer() {
+    public LugarContainer(Lugar lugar, Util.Accion accion) {
+        this.lugar = lugar;
+        this.accion = accion;
     }
 
-    public Ciudad getCiudad() {
-        return ciudad;
+    public LugarContainer() {
     }
 
-    public void setCiudad(Ciudad ciudad) {
-        this.ciudad = ciudad;
+    public Lugar getLugar() {
+        return lugar;
+    }
+
+    public void setLugar(Lugar lugar) {
+        this.lugar = lugar;
     }
 
     public Util.Accion getAccion() {

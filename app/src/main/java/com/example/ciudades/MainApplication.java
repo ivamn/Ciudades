@@ -14,10 +14,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.auth.User;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -29,16 +30,21 @@ public class MainApplication extends AppCompatActivity {
 
     private FirebaseStorage storage;
     private DocumentReference userReference;
-    private String emailUsuario;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.application_main);
-        emailUsuario = getIntent().getStringExtra("usuario");
+        user = FirebaseAuth.getInstance().getCurrentUser();
         storage = FirebaseStorage.getInstance();
         initUserReference();
         mostrarFragmentTabs();
+
+        // Delete
+        LugarViewModel lugarViewModel = new ViewModelProvider(this).get(LugarViewModel.class);
+        //
+
         CiudadViewModel ciudadViewModel = new ViewModelProvider(this).get(CiudadViewModel.class);
         ciudadViewModel.getData().observe(this, new Observer<CiudadContainer>() {
             @Override
@@ -53,10 +59,22 @@ public class MainApplication extends AppCompatActivity {
                         break;
                     case EDIT_ACTION:
                         editarCiudad(ciudadContainer.getCiudad(), ciudadContainer.getKey());
-                    break;
+                        break;
+                    case DELETE:
+                        borrarCiudad(ciudadContainer.getKey());
+                        break;
                     default:
                         break;
                 }
+            }
+        });
+    }
+
+    private void borrarCiudad(String key) {
+        userReference.collection("ciudades").document(key).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Toast.makeText(MainApplication.this, "Se ha eliminado la ciudad", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -70,7 +88,7 @@ public class MainApplication extends AppCompatActivity {
                 .commit();
     }
 
-    private void mostrarFragmentTabs(){
+    private void mostrarFragmentTabs() {
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack();
         FragmentTransaction ft = fm.beginTransaction();
@@ -80,11 +98,10 @@ public class MainApplication extends AppCompatActivity {
     }
 
     private void addCiudadFirebase(Ciudad c) {
-        eliminarUltimoFragment();
         editarCiudad(c, getKey());
     }
 
-    private void eliminarUltimoFragment(){
+    private void eliminarUltimoFragment() {
         getSupportFragmentManager().popBackStack();
     }
 
@@ -96,8 +113,8 @@ public class MainApplication extends AppCompatActivity {
         userReference.collection("ciudades").document(key).set(hashMap);
     }
 
-    private String getFileNameFromUri(Uri uri){
-        String result = uri.getPath();
+    private String getFileNameFromUri(Uri uri) {
+        String result = uri.toString();
         int cut = result.lastIndexOf('/');
         if (cut != -1) {
             result = result.substring(cut + 1);
@@ -105,7 +122,7 @@ public class MainApplication extends AppCompatActivity {
         return result;
     }
 
-    private String getKey(){
+    private String getKey() {
         Random r = new Random();
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < 10; i++) {
@@ -128,25 +145,25 @@ public class MainApplication extends AppCompatActivity {
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if (task.isSuccessful()) {
                         Toast.makeText(MainApplication.this, "Se ha subido la imagen", Toast.LENGTH_SHORT).show();
-                        actualizarRegistro(c, key, downloadURL);
                     } else {
                         Toast.makeText(MainApplication.this, "No se ha podido subir la imagen", Toast.LENGTH_SHORT).show();
                     }
+                    actualizarRegistro(c, key, downloadURL);
                 }
             });
         }
     }
 
-    private void initUserReference(){
+    private void initUserReference() {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("usuarios").document(emailUsuario).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("usuarios").document(user.getEmail()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     if (!task.getResult().exists()) {
-                        db.collection("usuarios").document(emailUsuario).set(new Usuario("asdasd", "asdasd"));
+                        db.collection("usuarios").document(user.getEmail()).set(new Usuario("asdasd", "asdasd"));
                     }
-                    userReference = db.collection("usuarios").document(emailUsuario);
+                    userReference = db.collection("usuarios").document(user.getEmail());
                 } else {
                     Toast.makeText(MainApplication.this, "Error al acceder a la colección de usuarios", Toast.LENGTH_SHORT).show();
                 }
@@ -154,7 +171,7 @@ public class MainApplication extends AppCompatActivity {
         });
     }
 
-    public DocumentReference getUserReference() {
-        return userReference;
+    public FirebaseUser getUser() {
+        return user;
     }
 }

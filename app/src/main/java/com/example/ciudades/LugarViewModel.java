@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class CiudadViewModel extends ViewModel {
-    private MutableLiveData<CiudadContainer> liveData;
+public class LugarViewModel extends ViewModel {
+    private MutableLiveData<LugarContainer> liveData;
 
-    public LiveData<CiudadContainer> getData(){
+    public LiveData<LugarContainer> getData(){
         if (liveData != null) {
             setData(liveData.getValue());
         } else {
@@ -16,7 +16,7 @@ public class CiudadViewModel extends ViewModel {
         return liveData;
     }
 
-    public void setData(CiudadContainer contacto) {
+    public void setData(LugarContainer contacto) {
         if (liveData == null) {
             liveData = new MutableLiveData<>();
         } else {

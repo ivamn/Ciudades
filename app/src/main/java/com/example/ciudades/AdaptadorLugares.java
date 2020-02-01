@@ -18,17 +18,17 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
-public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder> implements View.OnClickListener, View.OnLongClickListener {
+public class AdaptadorLugares extends FirestoreRecyclerAdapter<Lugar, AdaptadorLugares.Holder> implements View.OnClickListener, View.OnLongClickListener {
 
     private View.OnClickListener onClickListener;
     private View.OnLongClickListener longClickListener;
 
-    public Adaptador(@NonNull FirestoreRecyclerOptions<Ciudad> options) {
+    public AdaptadorLugares(@NonNull FirestoreRecyclerOptions<Lugar> options) {
         super(options);
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull Holder holder, int position, @NonNull Ciudad model) {
+    protected void onBindViewHolder(@NonNull Holder holder, int position, @NonNull Lugar model) {
         holder.bind(model);
     }
 
@@ -37,7 +37,6 @@ public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.holder, parent, false);
         view.setOnClickListener(onClickListener);
-        view.setOnLongClickListener(longClickListener);
         return new Holder(view);
     }
 
@@ -80,8 +79,9 @@ public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder
             imageView = v.findViewById(R.id.imageView);
         }
 
-        public void bind(Ciudad item) {
-            text.setText(String.format("%s/%s", item.getPais(), item.getCiudad()));
+        public void bind(Lugar item) {
+            item = item;
+            text.setText(String.format("%s/%s", item.getLugar(), item.getDescripcion()));
             if (item.getImagen() == null || item.getImagen().equals("")) {
                 StorageReference reference = FirebaseStorage.getInstance().getReference(DEFAULT_IMAGE);
                 reference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
