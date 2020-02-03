@@ -234,4 +234,6 @@ public class FragmentEdit extends Fragment {
         super.onDestroyView();
         lugarViewModel.setData(null);
     }
+
+
 }

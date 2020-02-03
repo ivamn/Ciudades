@@ -14,7 +14,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_background"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.40"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +26,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imageViewLugar"
-            android:layout_margin="8dp"
+            android:textAlignment="center"
+            android:background="#50000000"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:hint="Lugar" />
 
         <EditText
@@ -37,7 +40,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/editLugar"
-            android:layout_margin="8dp"
+            android:textAlignment="center"
+            android:background="#50000000"
+            android:textColor="@android:color/white"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:hint="Descripción" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

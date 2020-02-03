@@ -1,17 +1,25 @@
 package com.example.ciudades;
 
-import com.google.firebase.firestore.CollectionReference;
-
 public class Usuario {
-    String apellido;
-    String nombre;
+    private String apellido;
+    private String nombre;
+    private String imagen;
 
-    public Usuario(String apellido, String nombre) {
+    public Usuario(String apellido, String nombre, String imagen) {
         this.apellido = apellido;
         this.nombre = nombre;
+        this.imagen = imagen;
     }
 
     public Usuario() {
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
     public String getApellido() {

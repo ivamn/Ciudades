@@ -161,7 +161,7 @@ public class MainApplication extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     if (!task.getResult().exists()) {
-                        db.collection("usuarios").document(user.getEmail()).set(new Usuario("asdasd", "asdasd"));
+                        db.collection("usuarios").document(user.getEmail()).set(new Usuario("Nombre nuevo", "Apellido nuevo", ""));
                     }
                     userReference = db.collection("usuarios").document(user.getEmail());
                 } else {
