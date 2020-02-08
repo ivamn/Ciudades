@@ -13,38 +13,36 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
-
-import java.util.HashMap;
-import java.util.Random;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
-public class FragmentEdit extends Fragment {
+public class FragmentEdit extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
     private final int COD_ELEGIR_IMAGEN = 0;
     private String key;
     private EditText editCiudad, pais;
     private ImageView imageView;
-    private String imagen;
     private CiudadViewModel ciudadViewModel;
     private Util.Accion accion;
     private Ciudad ciudad;
-    private DocumentReference ciudadReference;
     private LugarViewModel lugarViewModel;
+    private Uri selectedImage;
+    private RecyclerView recycler;
+    private AdaptadorLugares adaptador;
 
     public FragmentEdit(CiudadContainer ciudadContainer) {
         accion = ciudadContainer.getAccion();
@@ -57,27 +55,21 @@ public class FragmentEdit extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.edit_fragment, container, false);
-        String user = ((MainApplication) getActivity()).getUser().getEmail();
         editCiudad = v.findViewById(R.id.editCiudad);
         pais = v.findViewById(R.id.editPais);
         imageView = v.findViewById(R.id.imageView);
+        recycler = v.findViewById(R.id.recycler_lugares);
 
         if (accion == Util.Accion.EDIT_REQUEST) {
             editCiudad.setText(ciudad.getCiudad());
             pais.setText(ciudad.getPais());
-            imagen = ciudad.getImagen();
             if (!ciudad.getImagen().equals("") && ciudad.getImagen() != null) {
-                FirebaseStorage.getInstance().getReference(ciudad.getImagen()).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        Picasso.get().load(task.getResult()).into(imageView);
-                    }
-                });
+                Operations.loadIntoImageView(FirebaseStorage.getInstance().getReference(ciudad.getImagen()), imageView);
             }
-            ciudadReference = FirebaseFirestore.getInstance().collection("usuarios").document(user)
-                    .collection("ciudades").document(key);
-            mostrarFragmentRecycler();
+            Operations.cityDocument = Operations.cityCollection.document(key);
         }
+
+        inicializarAdaptador();
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,20 +82,22 @@ public class FragmentEdit extends Fragment {
             }
         });
 
+        lugarViewModel = new ViewModelProvider(getActivity()).get(LugarViewModel.class);
         ciudadViewModel = new ViewModelProvider(getActivity()).get(CiudadViewModel.class);
         v.findViewById(R.id.buttonAceptar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Ciudad c = generarCiudad();
+                final Ciudad c = generarCiudad();
                 if (accion == Util.Accion.ADD_REQUEST) {
-                    ciudadViewModel.setData(new CiudadContainer(c, Util.Accion.ADD_ACTION));
+                    Operations.addCity(c, selectedImage);
+                    getParentFragmentManager().popBackStack();
                 } else {
-                    ciudadViewModel.setData(new CiudadContainer(c, Util.Accion.EDIT_ACTION, key));
+                    Operations.updateCity(c, key, selectedImage);
+                    getParentFragmentManager().popBackStack();
                 }
             }
         });
-
-        lugarViewModel = new ViewModelProvider(getActivity()).get(LugarViewModel.class);
+        /*
         lugarViewModel.getData().observe(getViewLifecycleOwner(), new Observer<LugarContainer>() {
             @Override
             public void onChanged(LugarContainer lugarContainer) {
@@ -111,7 +105,7 @@ public class FragmentEdit extends Fragment {
                     switch (lugarContainer.getAccion()) {
                         case ADD_REQUEST:
                         case EDIT_REQUEST:
-                            replaceFragmentEditLugar(lugarContainer);
+                            //replaceFragmentEditLugar(lugarContainer);
                             break;
                         case ADD_ACTION:
                             addLugarFirebase(lugarContainer.getLugar());
@@ -127,20 +121,40 @@ public class FragmentEdit extends Fragment {
             }
         });
 
+         */
+
         return v;
     }
 
+    private void inicializarAdaptador() {
+        Operations.placeCollection = Operations.cityDocument.collection("lugares");
+        Operations.placeCollection.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    Query query = task.getResult().getQuery();
+                    cargarRecycler(query);
+                } else {
+                    Toast.makeText(getContext(), "Error al obtener datos de la base de datos", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
     private void borrarLugar(String key) {
+        /*
         ciudadReference.collection("lugares").document(key).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Toast.makeText(getContext(), "Se ha eliminado la ciudad", Toast.LENGTH_SHORT).show();
             }
         });
+
+         */
     }
 
     private void addLugarFirebase(Lugar lugar) {
-        editarLugar(lugar, getKey());
+        editarLugar(lugar, "");
     }
 
     private void editarLugar(final Lugar l, final String key) {
@@ -149,8 +163,8 @@ public class FragmentEdit extends Fragment {
             actualizarRegistro(l, key, "");
         } else {
             Uri uri = Uri.parse(l.getImagen());
-            String fileName = getFileNameFromUri(uri);
-            final String downloadURL = "lugares/" + fileName;
+            //String fileName = getFileNameFromUri(uri);
+            final String downloadURL = "lugares/" + "";
             StorageReference refSubida = FirebaseStorage.getInstance().getReference().child(downloadURL);
             refSubida.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -168,62 +182,41 @@ public class FragmentEdit extends Fragment {
     }
 
     private void actualizarRegistro(Lugar c, String key, String downloadURL) {
+        /*
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("lugar", c.getLugar());
         hashMap.put("descripcion", c.getDescripcion());
         hashMap.put("imagen", downloadURL);
         ciudadReference.collection("lugares").document(key).set(hashMap);
-    }
 
-    private String getFileNameFromUri(Uri uri) {
-        String result = uri.toString();
-        int cut = result.lastIndexOf('/');
-        if (cut != -1) {
-            result = result.substring(cut + 1);
-        }
-        return result;
-    }
-
-    private String getKey() {
-        Random r = new Random();
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 10; i++) {
-            builder.append(r.nextInt(96) + 32);
-        }
-        return builder.toString();
+         */
     }
 
     private void eliminarUltimoFragment() {
         getChildFragmentManager().popBackStack();
     }
 
-    private void replaceFragmentEditLugar(LugarContainer lugarContainer) {
-        FragmentManager fm = getChildFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        FragmentEditLugar fragment = new FragmentEditLugar(lugarContainer);
-        ft.add(R.id.fragment_container_lugares, fragment)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void mostrarFragmentRecycler() {
-        FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-        FragmentRecyclerLugares fragmentRecyclerLugares = new FragmentRecyclerLugares(ciudadReference.collection("lugares"));
-        ft.replace(R.id.fragment_container_lugares, fragmentRecyclerLugares);
-        ft.commit();
+    private void cargarRecycler(Query query) {
+        FirestoreRecyclerOptions<Lugar> firestoreRecyclerOptions = new FirestoreRecyclerOptions.Builder<Lugar>()
+                .setQuery(query, Lugar.class).setLifecycleOwner(this).build();
+        adaptador = new AdaptadorLugares(firestoreRecyclerOptions);
+        recycler.setAdapter(adaptador);
+        adaptador.startListening();
+        adaptador.setOnClickListener(this);
+        adaptador.setOnLongClickListener(this);
+        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     private Ciudad generarCiudad() {
-        return new Ciudad(editCiudad.getText().toString(), pais.getText().toString(), imagen);
+        return new Ciudad(editCiudad.getText().toString(), pais.getText().toString(), key);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == COD_ELEGIR_IMAGEN && resultCode == RESULT_OK) {
-            Uri rutaImagen = data.getData();
-            imagen = rutaImagen.toString();
-            imageView.setImageURI(rutaImagen);
+            selectedImage = data.getData();
+            imageView.setImageURI(selectedImage);
         } else if (resultCode == RESULT_CANCELED) {
             Toast.makeText(getActivity(), "Se ha cancelado la operación", Toast.LENGTH_SHORT).show();
         }
@@ -232,8 +225,19 @@ public class FragmentEdit extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        lugarViewModel.setData(null);
+        adaptador.stopListening();
     }
 
 
+    @Override
+    public void onClick(View v) {
+        Lugar l = adaptador.getItem(recycler.getChildAdapterPosition(v));
+        String key = adaptador.getSnapshots().getSnapshot(recycler.getChildAdapterPosition(v)).getId();
+        lugarViewModel.setData(new LugarContainer(l, Util.Accion.EDIT_REQUEST, key));
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return false;
+    }
 }

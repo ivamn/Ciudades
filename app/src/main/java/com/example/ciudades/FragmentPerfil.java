@@ -26,7 +26,6 @@ public class FragmentPerfil extends Fragment {
     private TextView textViewNombre;
     private TextView textViewApellido;
     private ImageView imagePerfil;
-    private FirebaseUser usuario;
 
     @Nullable
     @Override
@@ -36,8 +35,7 @@ public class FragmentPerfil extends Fragment {
         textViewApellido = v.findViewById(R.id.textViewApellidos);
         textViewNombre = v.findViewById(R.id.textViewNombre);
         imagePerfil = v.findViewById(R.id.imagePerfil);
-        usuario = ((MainApplication)getActivity()).getUser();
-        FirebaseFirestore.getInstance().collection("usuarios").document(usuario.getEmail()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        FirebaseFirestore.getInstance().collection("usuarios").document(Operations.user.getEmail()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {

@@ -31,8 +31,8 @@ public class FragmentEditLugar extends Fragment {
     private Util.Accion accion;
     private Lugar lugar;
     private String key;
-    private String imagen;
     private LugarViewModel lugarViewModel;
+    private Uri selectedImage;
 
     public FragmentEditLugar(LugarContainer lugarContainer) {
         accion = lugarContainer.getAccion();
@@ -52,15 +52,10 @@ public class FragmentEditLugar extends Fragment {
         if (accion == Util.Accion.EDIT_REQUEST) {
             editLugar.setText(lugar.getLugar());
             editDescripcion.setText(lugar.getDescripcion());
-            imagen = lugar.getImagen();
             if (!lugar.getImagen().equals("") && lugar.getImagen() != null) {
-                FirebaseStorage.getInstance().getReference(lugar.getImagen()).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        Picasso.get().load(task.getResult()).into(imageView);
-                    }
-                });
+                Operations.loadIntoImageView(FirebaseStorage.getInstance().getReference(lugar.getImagen()), imageView);
             }
+            Operations.placeDocument = Operations.placeCollection.document(key);
         }
 
         imageView.setOnClickListener(new View.OnClickListener() {
@@ -78,11 +73,13 @@ public class FragmentEditLugar extends Fragment {
         v.findViewById(R.id.buttonAceptarLugar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Lugar l = generarLugar();
+                final Lugar lugar = generarLugar();
                 if (accion == Util.Accion.ADD_REQUEST) {
-                    lugarViewModel.setData(new LugarContainer(l, Util.Accion.ADD_ACTION));
+                    Operations.addPlace(lugar, selectedImage);
+                    getParentFragmentManager().popBackStack();
                 } else {
-                    lugarViewModel.setData(new LugarContainer(l, Util.Accion.EDIT_ACTION, key));
+                    Operations.updatePlace(lugar, key, selectedImage);
+                    getParentFragmentManager().popBackStack();
                 }
             }
         });
@@ -91,16 +88,15 @@ public class FragmentEditLugar extends Fragment {
     }
 
     private Lugar generarLugar() {
-        return new Lugar(editLugar.getEditableText().toString(), editDescripcion.getText().toString(), imagen);
+        return new Lugar(editLugar.getEditableText().toString(), editDescripcion.getText().toString(), key);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == COD_ELEGIR_IMAGEN && resultCode == RESULT_OK) {
-            Uri rutaImagen = data.getData();
-            imagen = rutaImagen.toString();
-            imageView.setImageURI(rutaImagen);
+            selectedImage = data.getData();
+            imageView.setImageURI(selectedImage);
         } else if (resultCode == RESULT_CANCELED) {
             Toast.makeText(getActivity(), "Se ha cancelado la operación", Toast.LENGTH_SHORT).show();
         }

@@ -5,20 +5,13 @@ import android.os.Bundle;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -45,9 +38,9 @@ public class MainActivity extends AppCompatActivity {
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    Toast.makeText(MainActivity.this, user.getEmail() + " logeado", Toast.LENGTH_LONG).show();
+                Operations.user = firebaseAuth.getCurrentUser();
+                if (Operations.user != null) {
+                    Toast.makeText(MainActivity.this, Operations.user.getEmail() + " logeado", Toast.LENGTH_LONG).show();
                     auth = firebaseAuth;
                 }
             }
@@ -61,8 +54,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    String email = task.getResult().getUser().getEmail();
-                                    iniciarAplicacion(email);
+                                    iniciarAplicacion();
                                 } else {
                                     Toast.makeText(MainActivity.this, "Problemas al crear el usuario", Toast.LENGTH_LONG).show();
                                 }
@@ -79,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    String email = task.getResult().getUser().getEmail();
-                                    iniciarAplicacion(email);
+                                    iniciarAplicacion();
                                 } else {
                                     Toast.makeText(MainActivity.this, "Error de autenticación", Toast.LENGTH_LONG).show();
                                 }
@@ -91,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void iniciarAplicacion(String user) {
+    private void iniciarAplicacion() {
         Intent intent = new Intent(this, MainApplication.class);
-        intent.putExtra("usuario", user);
+        Operations.initializeReferences();
         startActivity(intent);
     }
 

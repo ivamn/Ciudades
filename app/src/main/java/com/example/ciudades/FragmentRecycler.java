@@ -38,7 +38,7 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_recycler, container, false);
         userReference = FirebaseFirestore.getInstance().collection("usuarios")
-                .document(getUser().getEmail());
+                .document(Operations.user.getEmail());
         recyclerView = view.findViewById(R.id.recycler);
         inicializarAdaptador();
         ciudadViewModel = new ViewModelProvider(getActivity()).get(CiudadViewModel.class);
@@ -101,15 +101,10 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
         adaptador.stopListening();
     }
 
-    public FirebaseUser getUser(){
-        return ((MainApplication)getActivity()).getUser();
-    }
-
     @Override
     public boolean onLongClick(View v) {
-        Ciudad c = adaptador.getSnapshots().get(recyclerView.getChildAdapterPosition(v));
         String key = adaptador.getSnapshots().getSnapshot(recyclerView.getChildAdapterPosition(v)).getId();
-        ciudadViewModel.setData(new CiudadContainer(c, Util.Accion.DELETE, key));
+        Operations.deleteCity(key);
         return false;
     }
 }
