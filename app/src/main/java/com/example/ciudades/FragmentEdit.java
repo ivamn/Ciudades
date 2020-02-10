@@ -1,5 +1,6 @@
 package com.example.ciudades;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,12 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,6 +44,7 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
     private Uri selectedImage;
     private RecyclerView recycler;
     private AdaptadorLugares adaptador;
+    private AlertDialog dialog;
 
     public FragmentEdit(CiudadContainer ciudadContainer) {
         accion = ciudadContainer.getAccion();
@@ -54,6 +56,7 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        showProgressBar();
         View v = inflater.inflate(R.layout.edit_fragment, container, false);
         editCiudad = v.findViewById(R.id.editCiudad);
         pais = v.findViewById(R.id.editPais);
@@ -61,13 +64,23 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
         recycler = v.findViewById(R.id.recycler_lugares);
 
         if (accion == Util.Accion.EDIT_REQUEST) {
+            // Progress bar
+            FirebaseStorage.getInstance().getReference(key).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    selectedImage = task.getResult();
+                    dialog.cancel();
+                }
+            });
             editCiudad.setText(ciudad.getCiudad());
             pais.setText(ciudad.getPais());
             if (!ciudad.getImagen().equals("") && ciudad.getImagen() != null) {
                 Operations.loadIntoImageView(FirebaseStorage.getInstance().getReference(ciudad.getImagen()), imageView);
             }
-            Operations.cityDocument = Operations.cityCollection.document(key);
+        } else {
+            key = Operations.newId();
         }
+        Operations.cityDocument = Operations.cityCollection.document(key);
 
         inicializarAdaptador();
 
@@ -82,6 +95,8 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
             }
         });
 
+
+
         lugarViewModel = new ViewModelProvider(getActivity()).get(LugarViewModel.class);
         ciudadViewModel = new ViewModelProvider(getActivity()).get(CiudadViewModel.class);
         v.findViewById(R.id.buttonAceptar).setOnClickListener(new View.OnClickListener() {
@@ -95,6 +110,12 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
                     Operations.updateCity(c, key, selectedImage);
                     getParentFragmentManager().popBackStack();
                 }
+            }
+        });
+        v.findViewById(R.id.fabLugares).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                lugarViewModel.setData(new LugarContainer(null, Util.Accion.ADD_REQUEST, null));
             }
         });
         /*
@@ -124,6 +145,14 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
          */
 
         return v;
+    }
+
+    private void showProgressBar(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(getLayoutInflater().inflate(R.layout.progress, null));
+        builder.setCancelable(false);
+        dialog = builder.create();
+
     }
 
     private void inicializarAdaptador() {

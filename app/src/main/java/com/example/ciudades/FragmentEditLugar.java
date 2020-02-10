@@ -1,5 +1,6 @@
 package com.example.ciudades;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,8 +32,8 @@ public class FragmentEditLugar extends Fragment {
     private Util.Accion accion;
     private Lugar lugar;
     private String key;
-    private LugarViewModel lugarViewModel;
     private Uri selectedImage;
+    private AlertDialog dialog;
 
     public FragmentEditLugar(LugarContainer lugarContainer) {
         accion = lugarContainer.getAccion();
@@ -45,18 +46,28 @@ public class FragmentEditLugar extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.edit_lugar_fragment, container, false);
+        showProgressBar();
         editLugar = v.findViewById(R.id.editLugar);
         editDescripcion = v.findViewById(R.id.editDescripcion);
         imageView = v.findViewById(R.id.imageViewLugar);
-
         if (accion == Util.Accion.EDIT_REQUEST) {
+            // Progress bar
+            FirebaseStorage.getInstance().getReference(key).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    selectedImage = task.getResult();
+                    dialog.cancel();
+                }
+            });
             editLugar.setText(lugar.getLugar());
             editDescripcion.setText(lugar.getDescripcion());
             if (!lugar.getImagen().equals("") && lugar.getImagen() != null) {
                 Operations.loadIntoImageView(FirebaseStorage.getInstance().getReference(lugar.getImagen()), imageView);
             }
-            Operations.placeDocument = Operations.placeCollection.document(key);
+        } else {
+            key = Operations.newId();
         }
+        Operations.placeDocument = Operations.placeCollection.document(key);
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,7 +80,7 @@ public class FragmentEditLugar extends Fragment {
             }
         });
 
-        lugarViewModel = new ViewModelProvider(getActivity()).get(LugarViewModel.class);
+        LugarViewModel lugarViewModel = new ViewModelProvider(getActivity()).get(LugarViewModel.class);
         v.findViewById(R.id.buttonAceptarLugar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,6 +96,14 @@ public class FragmentEditLugar extends Fragment {
         });
 
         return v;
+    }
+
+    private void showProgressBar(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setView(getLayoutInflater().inflate(R.layout.progress, null));
+        builder.setCancelable(false);
+        dialog = builder.create();
+
     }
 
     private Lugar generarLugar() {

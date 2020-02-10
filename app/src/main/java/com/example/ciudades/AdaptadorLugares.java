@@ -35,7 +35,7 @@ public class AdaptadorLugares extends FirestoreRecyclerAdapter<Lugar, AdaptadorL
     @NonNull
     @Override
     public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.holder, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.holder_lugares, parent, false);
         view.setOnClickListener(onClickListener);
         return new Holder(view);
     }
@@ -70,35 +70,27 @@ public class AdaptadorLugares extends FirestoreRecyclerAdapter<Lugar, AdaptadorL
     class Holder extends RecyclerView.ViewHolder {
         private final String DEFAULT_IMAGE = "/default.jpg";
 
-        private TextView text;
+        private TextView textLugar;
+        private TextView textDescripcion;
         private ImageView imageView;
 
         public Holder(View v) {
             super(v);
-            text = v.findViewById(R.id.text);
-            imageView = v.findViewById(R.id.imageView);
+            textLugar = v.findViewById(R.id.textLugar);
+            textDescripcion = v.findViewById(R.id.textDescripcion);
+            imageView = v.findViewById(R.id.imagenLugar);
         }
 
         public void bind(Lugar item) {
-            item = item;
-            text.setText(String.format("%s/%s", item.getLugar(), item.getDescripcion()));
+            textLugar.setText(item.getLugar());
+            textDescripcion.setText(item.getDescripcion());
+            StorageReference reference = null;
             if (item.getImagen() == null || item.getImagen().equals("")) {
-                StorageReference reference = FirebaseStorage.getInstance().getReference(DEFAULT_IMAGE);
-                reference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        Picasso.get().load(task.getResult()).into(imageView);
-                    }
-                });
+                reference = FirebaseStorage.getInstance().getReference(DEFAULT_IMAGE);
             } else {
-                StorageReference reference = FirebaseStorage.getInstance().getReference(item.getImagen());
-                reference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        Picasso.get().load(task.getResult()).into(imageView);
-                    }
-                });
+                reference = FirebaseStorage.getInstance().getReference(item.getImagen());
             }
+            Operations.loadIntoImageView(reference, imageView);
         }
     }
 

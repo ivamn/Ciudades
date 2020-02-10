@@ -13,7 +13,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -43,7 +45,15 @@ public class Operations {
         }
     }
 
-    public static void deleteCity(String key) {
+    public static void deleteCity(final String key) {
+        cityCollection.document(key).collection("lugares").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                for (DocumentSnapshot d : task.getResult().getDocuments()) {
+                    cityCollection.document(key).collection("lugares").document(d.getId()).delete();
+                }
+            }
+        });
         cityCollection.document(key).delete().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -130,8 +140,6 @@ public class Operations {
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if (task.isSuccessful()) {
                         updateCity(newCity, key);
-                    } else {
-                        Toast.makeText(applicationContext, "No se ha podido subir la imagen", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -181,5 +189,15 @@ public class Operations {
 
     public static Task<UploadTask.TaskSnapshot> uploadImage(String reference, Uri file) {
         return FirebaseStorage.getInstance().getReference(reference).putFile(file);
+    }
+
+    public static String newId(){
+        StringBuilder builder = new StringBuilder();
+        Random r = new Random();
+        for (int i = 0; i < 15; i++){
+            char c = (char) r.nextInt(50);
+            builder.append(c);
+        }
+        return builder.toString();
     }
 }
