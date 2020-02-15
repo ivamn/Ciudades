@@ -77,23 +77,22 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
             if (!ciudad.getImagen().equals("") && ciudad.getImagen() != null) {
                 Operations.loadIntoImageView(FirebaseStorage.getInstance().getReference(ciudad.getImagen()), imageView);
             }
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.setType("image/*");
+                    if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                        startActivityForResult(intent, COD_ELEGIR_IMAGEN);
+                    }
+                }
+            });
         } else {
             key = Operations.newId();
         }
         Operations.cityDocument = Operations.cityCollection.document(key);
 
         inicializarAdaptador();
-
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("image/*");
-                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    startActivityForResult(intent, COD_ELEGIR_IMAGEN);
-                }
-            }
-        });
 
 
 
@@ -267,6 +266,8 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
 
     @Override
     public boolean onLongClick(View v) {
+        String key = adaptador.getSnapshots().getSnapshot(recycler.getChildAdapterPosition(v)).getId();
+        Operations.deletePlace(key);
         return false;
     }
 }

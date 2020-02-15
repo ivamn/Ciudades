@@ -34,7 +34,8 @@ public class Operations {
     public static DocumentReference cityDocument;
     public static CollectionReference placeCollection;
     public static DocumentReference placeDocument;
-    public static CollectionReference photoCollection;
+    public static CollectionReference mainPlaceCollection;
+    public static DocumentReference mainPlaceDocument;
     public static Context applicationContext;
 
     public static void initializeReferences() {
@@ -66,7 +67,7 @@ public class Operations {
         placeCollection.document(key).delete().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(applicationContext, "No se ha podido borrar la ciudad", Toast.LENGTH_SHORT).show();
+                Toast.makeText(applicationContext, "No se ha podido borrar el lugar", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -191,13 +192,63 @@ public class Operations {
         return FirebaseStorage.getInstance().getReference(reference).putFile(file);
     }
 
-    public static String newId(){
+    public static String newId() {
         StringBuilder builder = new StringBuilder();
         Random r = new Random();
-        for (int i = 0; i < 15; i++){
-            char c = (char) r.nextInt(50);
+        for (int i = 0; i < 15; i++) {
+            int c = r.nextInt(50);
             builder.append(c);
         }
         return builder.toString();
+    }
+
+    public static void addMainPlace(final LugarDestacado lugar, Uri image) {
+        final String randomString = getRandomString();
+        if (image == null) {
+            lugar.setImage(DEFAULT_URL);
+            mainPlaceCollection.document(randomString).set(lugar);
+        } else {
+            lugar.setImage(randomString);
+            uploadImage(randomString, image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    mainPlaceCollection.document(randomString).set(lugar);
+                }
+            });
+        }
+    }
+
+    public static void updateMainPlace(final LugarDestacado newLugar, final String key, Uri image) {
+        if (image == null) {
+            newLugar.setImage(DEFAULT_URL);
+            updateMainPlace(newLugar, key);
+        } else {
+            uploadImage(newLugar.getImage(), image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        updateMainPlace(newLugar, key);
+                    }
+                }
+            });
+        }
+    }
+
+    private static void updateMainPlace(LugarDestacado newLugar, String key) {
+        mainPlaceCollection.document(key).set(newLugar).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(applicationContext, "No se ha podido actualizar la ciudad", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public static void deleteMainPlace(String key) {
+        mainPlaceCollection.document(key).delete().addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(applicationContext, "No se ha podido borrar el lugar destacado", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
