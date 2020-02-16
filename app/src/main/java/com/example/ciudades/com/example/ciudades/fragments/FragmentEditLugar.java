@@ -1,4 +1,4 @@
-package com.example.ciudades;
+package com.example.ciudades.com.example.ciudades.fragments;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -14,11 +14,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ciudades.Operations;
+import com.example.ciudades.R;
+import com.example.ciudades.com.example.ciudades.adaptadores.AdaptadorLugaresDestacados;
+import com.example.ciudades.com.example.ciudades.pojo.Lugar;
+import com.example.ciudades.com.example.ciudades.pojo.LugarDestacado;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -35,7 +38,7 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
     private static final int COD_ELEGIR_IMAGEN_LUGAR = 1;
     private EditText editLugar, editDescripcion;
     private ImageView imageView;
-    private Util.Accion accion;
+    private Operations.Accion accion;
     private Lugar lugar;
     private String key;
     private Uri selectedImage;
@@ -43,10 +46,10 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
     private RecyclerView recycler;
     private AdaptadorLugaresDestacados adaptador;
 
-    public FragmentEditLugar(LugarContainer lugarContainer) {
-        accion = lugarContainer.getAccion();
-        lugar = lugarContainer.getLugar();
-        key = lugarContainer.getKey();
+    public FragmentEditLugar(Operations.Accion accion, Lugar lugar, String key) {
+        this.accion = accion;
+        this.lugar = lugar;
+        this.key = key;
     }
 
     @Nullable
@@ -59,7 +62,7 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
         editLugar = v.findViewById(R.id.editLugar);
         editDescripcion = v.findViewById(R.id.editDescripcion);
         imageView = v.findViewById(R.id.imageViewLugar);
-        if (accion == Util.Accion.EDIT_REQUEST) {
+        if (accion == Operations.Accion.EDIT_REQUEST) {
             // Progress bar
             FirebaseStorage.getInstance().getReference(key).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
@@ -90,27 +93,12 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
             }
         });
 
-        LugarViewModel lugarViewModel = new ViewModelProvider(getActivity()).get(LugarViewModel.class);
-        v.findViewById(R.id.buttonAceptarLugar).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Lugar lugar = generarLugar();
-                if (accion == Util.Accion.ADD_REQUEST) {
-                    Operations.addPlace(lugar, selectedImage);
-                    getParentFragmentManager().popBackStack();
-                } else {
-                    Operations.updatePlace(lugar, key, selectedImage);
-                    getParentFragmentManager().popBackStack();
-                }
-            }
-        });
-
         v.findViewById(R.id.fabLugaresDestacados).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getParentFragmentManager()
                         .beginTransaction()
-                        .add(R.id.fragment_container, new LugarDestacadoFragment(null, null, Util.Accion.ADD_REQUEST))
+                        .add(R.id.fragment_container, new LugarDestacadoFragment(null, null, Operations.Accion.ADD_REQUEST))
                         .addToBackStack(null).commit();
             }
         });
@@ -182,7 +170,7 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
         String key = adaptador.getSnapshots().getSnapshot(recycler.getChildAdapterPosition(v)).getId();
         getParentFragmentManager()
                 .beginTransaction()
-                .add(R.id.fragment_container, new LugarDestacadoFragment(lugar, key, Util.Accion.EDIT_REQUEST))
+                .add(R.id.fragment_container, new LugarDestacadoFragment(lugar, key, Operations.Accion.EDIT_REQUEST))
                 .addToBackStack(null).commit();
     }
 

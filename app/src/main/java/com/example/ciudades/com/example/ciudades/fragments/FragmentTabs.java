@@ -1,4 +1,4 @@
-package com.example.ciudades;
+package com.example.ciudades.com.example.ciudades.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,8 +10,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.ciudades.Operations;
+import com.example.ciudades.PagerAdapterImplementation;
+import com.example.ciudades.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 public class FragmentTabs extends Fragment {
 
@@ -35,10 +40,21 @@ public class FragmentTabs extends Fragment {
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
+        });
+        Operations.userDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                Boolean b = task.getResult().getBoolean("primera_vez");
+                if (b == null) {
+                    pager.setCurrentItem(1);
+                }
+            }
         });
         return v;
     }

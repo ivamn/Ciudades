@@ -7,6 +7,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.ciudades.com.example.ciudades.pojo.Ciudad;
+import com.example.ciudades.com.example.ciudades.pojo.Lugar;
+import com.example.ciudades.com.example.ciudades.pojo.LugarDestacado;
+import com.example.ciudades.com.example.ciudades.pojo.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -25,8 +29,11 @@ import java.util.Random;
 
 public class Operations {
 
+    public enum Accion {ADD_REQUEST, ADD_ACTION, EDIT_REQUEST, EDIT_ACTION, DELETE}
+
     public static final String DEFAULT_URL = "/default.jpg";
     public static final StorageReference DEFAULT_IMAGE = FirebaseStorage.getInstance().getReference(DEFAULT_URL);
+    public static Uri DEFAULT_IMAGE_RESOURCE;
 
     public static FirebaseUser user;
     public static DocumentReference userDocument;
@@ -39,6 +46,12 @@ public class Operations {
     public static Context applicationContext;
 
     public static void initializeReferences() {
+        DEFAULT_IMAGE.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+            @Override
+            public void onComplete(@NonNull Task<Uri> task) {
+                DEFAULT_IMAGE_RESOURCE = task.getResult();
+            }
+        });
         FirebaseFirestore fire = FirebaseFirestore.getInstance();
         if (user != null) {
             userDocument = fire.collection("usuarios").document(user.getEmail());
@@ -72,13 +85,46 @@ public class Operations {
         });
     }
 
+    private static void updateUser(Usuario s) {
+        userDocument.set(s).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(applicationContext, "Se ha actualizado el usuario", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(applicationContext, "No se ha podido actualizar el usuario", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public static void updateUser(final Usuario s, Uri image) {
+        if (image == null) {
+            s.setImagen(DEFAULT_URL);
+            updateUser(s);
+        } else {
+            uploadImage(s.getImagen(), image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        updateUser(s);
+                    }
+                }
+            });
+        }
+    }
+
     public static void addCity(final Ciudad c, final Uri image) {
         final String randomString = getRandomString();
+        c.setImagen(randomString);
         if (image == null) {
-            c.setImagen(DEFAULT_URL);
-            cityCollection.document(randomString).set(c);
+            uploadImage(randomString, DEFAULT_IMAGE_RESOURCE).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    cityCollection.document(randomString).set(c);
+                }
+            });
         } else {
-            c.setImagen(randomString);
             uploadImage(randomString, image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {

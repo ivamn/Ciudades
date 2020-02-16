@@ -1,4 +1,4 @@
-package com.example.ciudades;
+package com.example.ciudades.com.example.ciudades.fragments;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.ciudades.Operations;
+import com.example.ciudades.R;
+import com.example.ciudades.com.example.ciudades.pojo.LugarDestacado;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
@@ -28,12 +31,12 @@ public class LugarDestacadoFragment extends Fragment {
     private EditText nombre;
     private EditText descripcion;
     private ImageView imagen;
-    private Util.Accion accion;
+    private Operations.Accion accion;
     private String key;
     private Uri selectedImage;
     private LugarDestacado lugar;
 
-    public LugarDestacadoFragment(LugarDestacado lugarDestacado, String key, Util.Accion accion) {
+    public LugarDestacadoFragment(LugarDestacado lugarDestacado, String key, Operations.Accion accion) {
         this.lugar = lugarDestacado;
         this.key = key;
         this.accion = accion;
@@ -46,7 +49,7 @@ public class LugarDestacadoFragment extends Fragment {
         nombre = v.findViewById(R.id.textNombreLugarFrag);
         descripcion = v.findViewById(R.id.textDescripcionLugar);
         imagen = v.findViewById(R.id.imagenLugarDestacadoFrag);
-        if (accion == Util.Accion.EDIT_REQUEST) {
+        if (accion == Operations.Accion.EDIT_REQUEST) {
             FirebaseStorage.getInstance().getReference(key).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
@@ -78,7 +81,7 @@ public class LugarDestacadoFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final LugarDestacado lugar = generarLugarDestacado();
-                if (accion == Util.Accion.ADD_REQUEST) {
+                if (accion == Operations.Accion.ADD_REQUEST) {
                     Operations.addMainPlace(lugar, selectedImage);
                     getParentFragmentManager().popBackStack();
                 } else {

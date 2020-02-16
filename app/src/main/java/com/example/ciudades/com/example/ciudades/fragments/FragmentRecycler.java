@@ -1,4 +1,4 @@
-package com.example.ciudades;
+package com.example.ciudades.com.example.ciudades.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,15 +11,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ciudades.Operations;
+import com.example.ciudades.R;
+import com.example.ciudades.com.example.ciudades.adaptadores.Adaptador;
+import com.example.ciudades.com.example.ciudades.pojo.Ciudad;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -28,7 +29,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 public class FragmentRecycler extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
     private RecyclerView recyclerView;
-    private CiudadViewModel ciudadViewModel;
     private Adaptador adaptador;
     private DocumentReference userReference;
 
@@ -41,18 +41,22 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
                 .document(Operations.user.getEmail());
         recyclerView = view.findViewById(R.id.recycler);
         inicializarAdaptador();
-        ciudadViewModel = new ViewModelProvider(getActivity()).get(CiudadViewModel.class);
-        view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+            view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mostrarFragmentEdit();
+                mostrarFragmentEdit(Operations.Accion.ADD_REQUEST, null, null);
             }
         });
         return view;
     }
 
-    private void mostrarFragmentEdit() {
-        ciudadViewModel.setData(new CiudadContainer(null, Util.Accion.ADD_REQUEST));
+    private void mostrarFragmentEdit(Operations.Accion accion, Ciudad ciudad, String key) {
+        FragmentManager fm = getParentFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        FragmentEdit fragment = new FragmentEdit(accion, ciudad, key);
+        ft.add(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void cargarRecycler(Query query) {
@@ -84,7 +88,7 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
     public void onClick(View v) {
         String key = adaptador.getSnapshots().getSnapshot(recyclerView.getChildAdapterPosition(v)).getId();
         Ciudad c = adaptador.getItem(recyclerView.getChildAdapterPosition(v));
-        ciudadViewModel.setData(new CiudadContainer(c, Util.Accion.EDIT_REQUEST, key));
+        mostrarFragmentEdit(Operations.Accion.EDIT_REQUEST, c, key);
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -18,8 +19,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private EditText usuario, pass;
-    private Button crear, entrar;
+    private TextInputEditText usuario, pass;
     private FirebaseAuth auth;
     private FirebaseAuth.AuthStateListener authListener;
 
@@ -30,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
         usuario = findViewById(R.id.editUsuario);
         pass = findViewById(R.id.editPass);
-        crear = findViewById(R.id.buttonCrear);
-        entrar = findViewById(R.id.buttonEntrar);
+        Button crear = findViewById(R.id.buttonCrear);
+        Button entrar = findViewById(R.id.buttonEntrar);
 
         auth = FirebaseAuth.getInstance();
 

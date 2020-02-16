@@ -6,6 +6,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
+import com.example.ciudades.com.example.ciudades.fragments.FragmentPerfil;
+import com.example.ciudades.com.example.ciudades.fragments.FragmentRecycler;
+
 public class PagerAdapterImplementation extends FragmentStatePagerAdapter {
 
     private int numTabs;

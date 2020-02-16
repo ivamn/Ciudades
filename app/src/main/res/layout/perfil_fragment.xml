@@ -9,19 +9,22 @@
         android:layout_height="match_parent">
 
         <ImageView
+            android:src="@android:drawable/bottom_bar"
             android:id="@+id/imagePerfil"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="32dp"
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.15"
+            app:layout_constraintHeight_percent="0.3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.4" />
+            app:layout_constraintWidth_percent="0.7" />
 
-        <TextView
-            android:id="@+id/textViewNombre"
+        <EditText
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:id="@+id/editNombre"
+            android:text="Nombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
@@ -31,8 +34,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imagePerfil" />
 
-        <TextView
-            android:id="@+id/textViewApellidos"
+        <EditText
+            android:text="Apellidos"
+            android:id="@+id/editApellidos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
@@ -40,8 +44,41 @@
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textViewNombre" />
+            app:layout_constraintTop_toBottomOf="@id/editNombre" />
+
+        <EditText
+        android:inputType="phone"
+        android:text="Teléfono"
+        android:id="@+id/editTelefono"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editApellidos" />
+
+        <TextView
+            android:inputType="phone"
+            android:id="@+id/textViewMail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editTelefono" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_margin="16dp"
+        android:id="@+id/fabPerfil"
+        android:layout_gravity="bottom|end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_done_white_18"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

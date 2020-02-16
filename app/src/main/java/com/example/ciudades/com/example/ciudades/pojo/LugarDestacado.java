@@ -1,4 +1,4 @@
-package com.example.ciudades;
+package com.example.ciudades.com.example.ciudades.pojo;
 
 public class LugarDestacado {
     private String image;

@@ -1,6 +1,6 @@
-package com.example.ciudades;
+package com.example.ciudades.com.example.ciudades.pojo;
 
-class Ciudad {
+public class Ciudad {
     private String ciudad;
     private String pais;
     private String imagen;
