@@ -1,6 +1,7 @@
 package com.example.ciudades.com.example.ciudades.fragments;
 
 import android.content.Intent;
+import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -59,10 +60,10 @@ public class FragmentPerfil extends Fragment {
                     String apellido = s.getString("apellido");
                     if (apellido != null)
                         editApellidos.setText(apellido);
-                    String nombre = s.getString("apellido");
+                    String nombre = s.getString("nombre");
                     if (nombre != null)
                         editNombre.setText(nombre);
-                    String telefono = s.getString("apellido");
+                    String telefono = s.getString("telefono");
                     if (telefono != null)
                         editTelefono.setText(telefono);
                     String i = s.getString("imagen");
@@ -89,7 +90,11 @@ public class FragmentPerfil extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Operations.updateUser(generarUsuario(), selectedImage);
+                if (editNombre.getText().toString().equals("")) {
+                    Toast.makeText(Operations.applicationContext, "Introduce un nombre válido", Toast.LENGTH_SHORT).show();
+                } else {
+                    Operations.updateUser(generarUsuario(), selectedImage);
+                }
             }
         });
         return v;

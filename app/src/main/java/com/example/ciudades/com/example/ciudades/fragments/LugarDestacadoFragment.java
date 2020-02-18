@@ -53,7 +53,9 @@ public class LugarDestacadoFragment extends Fragment {
             FirebaseStorage.getInstance().getReference(key).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
-                    selectedImage = task.getResult();
+                    if (task.isSuccessful()) {
+                        selectedImage = task.getResult();
+                    }
                 }
             });
             nombre.setText(lugar.getNombre());
@@ -63,6 +65,7 @@ public class LugarDestacadoFragment extends Fragment {
             }
         } else {
             key = Operations.newId();
+            Operations.loadIntoImageView(Operations.DEFAULT_IMAGE, imagen);
         }
         Operations.mainPlaceDocument = Operations.mainPlaceCollection.document(key);
 

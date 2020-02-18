@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ciudades.Operations;
 import com.example.ciudades.R;
 import com.example.ciudades.com.example.ciudades.adaptadores.AdaptadorLugaresDestacados;
+import com.example.ciudades.com.example.ciudades.pojo.Ciudad;
 import com.example.ciudades.com.example.ciudades.pojo.Lugar;
 import com.example.ciudades.com.example.ciudades.pojo.LugarDestacado;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -63,11 +64,12 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
         editDescripcion = v.findViewById(R.id.editDescripcion);
         imageView = v.findViewById(R.id.imageViewLugar);
         if (accion == Operations.Accion.EDIT_REQUEST) {
-            // Progress bar
             FirebaseStorage.getInstance().getReference(key).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
-                    selectedImage = task.getResult();
+                    if (task.isSuccessful()) {
+                        selectedImage = task.getResult();
+                    }
                     dialog.cancel();
                 }
             });
@@ -78,6 +80,7 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
             }
         } else {
             key = Operations.newId();
+            Operations.loadIntoImageView(Operations.DEFAULT_IMAGE, imageView);
         }
         Operations.placeDocument = Operations.placeCollection.document(key);
         inicializarAdaptador();
@@ -100,6 +103,19 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
                         .beginTransaction()
                         .add(R.id.fragment_container, new LugarDestacadoFragment(null, null, Operations.Accion.ADD_REQUEST))
                         .addToBackStack(null).commit();
+            }
+        });
+
+        v.findViewById(R.id.buttonAceptarLugar).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Lugar l = generarLugar();
+                if (accion == Operations.Accion.ADD_REQUEST) {
+                    Operations.addPlace(l, selectedImage);
+                } else {
+                    Operations.updatePlace(l, key, selectedImage);
+                }
+                getParentFragmentManager().popBackStack();
             }
         });
 

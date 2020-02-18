@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.ciudades.Operations;
 import com.example.ciudades.R;
 import com.example.ciudades.com.example.ciudades.pojo.Ciudad;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -84,23 +85,8 @@ public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder
 
         public void bind(Ciudad item) {
             text.setText(String.format("%s/%s", item.getPais(), item.getCiudad()));
-            if (item.getImagen() == null || item.getImagen().equals("")) {
-                StorageReference reference = FirebaseStorage.getInstance().getReference(DEFAULT_IMAGE);
-                reference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        Picasso.get().load(task.getResult()).into(imageView);
-                    }
-                });
-            } else {
-                StorageReference reference = FirebaseStorage.getInstance().getReference(item.getImagen());
-                reference.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        Picasso.get().load(task.getResult()).into(imageView);
-                    }
-                });
-            }
+            StorageReference reference = FirebaseStorage.getInstance().getReference(item.getImagen());
+            Operations.loadIntoImageView(reference, imageView);
         }
     }
 

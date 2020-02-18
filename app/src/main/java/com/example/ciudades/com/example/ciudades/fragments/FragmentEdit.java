@@ -76,11 +76,12 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
         });
 
         if (accion == Operations.Accion.EDIT_REQUEST) {
-            // Progress bar
             FirebaseStorage.getInstance().getReference(key).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
-                    selectedImage = task.getResult();
+                    if (task.isSuccessful()) {
+                        selectedImage = task.getResult();
+                    }
                     dialog.cancel();
                 }
             });
@@ -91,6 +92,7 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
             }
         } else {
             key = Operations.newId();
+            Operations.loadIntoImageView(Operations.DEFAULT_IMAGE, imageView);
         }
         Operations.cityDocument = Operations.cityCollection.document(key);
 

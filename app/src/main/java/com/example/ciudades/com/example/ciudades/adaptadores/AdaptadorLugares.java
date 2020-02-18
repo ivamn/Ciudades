@@ -83,12 +83,7 @@ public class AdaptadorLugares extends FirestoreRecyclerAdapter<Lugar, AdaptadorL
         public void bind(Lugar item) {
             textLugar.setText(item.getLugar());
             textDescripcion.setText(item.getDescripcion());
-            StorageReference reference = null;
-            if (item.getImagen() == null || item.getImagen().equals("")) {
-                reference = FirebaseStorage.getInstance().getReference(DEFAULT_IMAGE);
-            } else {
-                reference = FirebaseStorage.getInstance().getReference(item.getImagen());
-            }
+            StorageReference reference = FirebaseStorage.getInstance().getReference(item.getImagen());
             Operations.loadIntoImageView(reference, imageView);
         }
     }

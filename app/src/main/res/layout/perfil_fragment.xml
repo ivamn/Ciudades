@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:animateLayoutChanges="true"
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,7 +25,7 @@
         <EditText
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:id="@+id/editNombre"
-            android:text="Nombre"
+            android:hint="Nombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
@@ -35,7 +36,7 @@
             app:layout_constraintTop_toBottomOf="@id/imagePerfil" />
 
         <EditText
-            android:text="Apellidos"
+            android:hint="Apellidos"
             android:id="@+id/editApellidos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,7 +49,7 @@
 
         <EditText
         android:inputType="phone"
-        android:text="Teléfono"
+        android:hint="Teléfono"
         android:id="@+id/editTelefono"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

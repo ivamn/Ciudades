@@ -25,16 +25,15 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
+import org.w3c.dom.Document;
+
 import java.util.Random;
 
 public class Operations {
 
-    public enum Accion {ADD_REQUEST, ADD_ACTION, EDIT_REQUEST, EDIT_ACTION, DELETE}
-
     public static final String DEFAULT_URL = "/default.jpg";
     public static final StorageReference DEFAULT_IMAGE = FirebaseStorage.getInstance().getReference(DEFAULT_URL);
     public static Uri DEFAULT_IMAGE_RESOURCE;
-
     public static FirebaseUser user;
     public static DocumentReference userDocument;
     public static CollectionReference cityCollection;
@@ -135,6 +134,14 @@ public class Operations {
     }
 
     public static void addPlace(final Lugar lugar, final Uri image) {
+        cityDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (!task.getResult().exists()) {
+                    addCity(new Ciudad("Ciudad", "País", task.getResult().getId()), image);
+                }
+            }
+        });
         final String randomString = getRandomString();
         if (image == null) {
             lugar.setImagen(DEFAULT_URL);
@@ -218,7 +225,6 @@ public class Operations {
                 if (task.isSuccessful()) {
                     Picasso.get().load(task.getResult()).into(imageView);
                 } else {
-                    Toast.makeText(applicationContext, "No se ha podido descargar la imagen", Toast.LENGTH_SHORT).show();
                     loadDefaultIntoImageView(imageView);
                 }
             }
@@ -248,7 +254,15 @@ public class Operations {
         return builder.toString();
     }
 
-    public static void addMainPlace(final LugarDestacado lugar, Uri image) {
+    public static void addMainPlace(final LugarDestacado lugar, final Uri image) {
+        placeDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (!task.getResult().exists()) {
+                    addPlace(new Lugar("Lugar", "Descripción", task.getResult().getId()), image);
+                }
+            }
+        });
         final String randomString = getRandomString();
         if (image == null) {
             lugar.setImage(DEFAULT_URL);
@@ -297,4 +311,6 @@ public class Operations {
             }
         });
     }
+
+    public enum Accion {ADD_REQUEST, ADD_ACTION, EDIT_REQUEST, EDIT_ACTION, DELETE}
 }
