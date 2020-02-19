@@ -1,4 +1,4 @@
-package com.example.ciudades.com.example.ciudades.fragments;
+package com.example.ciudades.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

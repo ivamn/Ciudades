@@ -1,6 +1,5 @@
-package com.example.ciudades.com.example.ciudades.adaptadores;
+package com.example.ciudades.adaptadores;
 
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ciudades.Operations;
 import com.example.ciudades.R;
-import com.example.ciudades.com.example.ciudades.pojo.Ciudad;
+import com.example.ciudades.pojo.Ciudad;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
 
 public class Adaptador extends FirestoreRecyclerAdapter<Ciudad, Adaptador.Holder> implements View.OnClickListener, View.OnLongClickListener {
 

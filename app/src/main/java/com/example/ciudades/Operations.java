@@ -7,10 +7,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.example.ciudades.com.example.ciudades.pojo.Ciudad;
-import com.example.ciudades.com.example.ciudades.pojo.Lugar;
-import com.example.ciudades.com.example.ciudades.pojo.LugarDestacado;
-import com.example.ciudades.com.example.ciudades.pojo.Usuario;
+import com.example.ciudades.pojo.Ciudad;
+import com.example.ciudades.pojo.Lugar;
+import com.example.ciudades.pojo.LugarDestacado;
+import com.example.ciudades.pojo.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -24,8 +24,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Document;
 
 import java.util.Random;
 
@@ -134,20 +132,17 @@ public class Operations {
     }
 
     public static void addPlace(final Lugar lugar, final Uri image) {
-        cityDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (!task.getResult().exists()) {
-                    addCity(new Ciudad("Ciudad", "País", task.getResult().getId()), image);
-                }
-            }
-        });
+        crearRecursivamente(false);
         final String randomString = getRandomString();
+        lugar.setImagen(randomString);
         if (image == null) {
-            lugar.setImagen(DEFAULT_URL);
-            placeCollection.document(randomString).set(lugar);
+            uploadImage(randomString, DEFAULT_IMAGE_RESOURCE).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    placeCollection.document(randomString).set(lugar);
+                }
+            });
         } else {
-            lugar.setImagen(randomString);
             uploadImage(randomString, image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -167,6 +162,7 @@ public class Operations {
     }
 
     private static void updateCity(Ciudad newCity, String documentKey) {
+        int i = 0;
         cityCollection.document(documentKey).set(newCity).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -192,9 +188,7 @@ public class Operations {
             uploadImage(newCity.getImagen(), image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        updateCity(newCity, key);
-                    }
+                    updateCity(newCity, key);
                 }
             });
         }
@@ -208,11 +202,7 @@ public class Operations {
             uploadImage(newLugar.getImagen(), image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        updatePlace(newLugar, key);
-                    } else {
-                        Toast.makeText(applicationContext, "No se ha podido subir la imagen", Toast.LENGTH_SHORT).show();
-                    }
+                    updatePlace(newLugar, key);
                 }
             });
         }
@@ -255,20 +245,17 @@ public class Operations {
     }
 
     public static void addMainPlace(final LugarDestacado lugar, final Uri image) {
-        placeDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (!task.getResult().exists()) {
-                    addPlace(new Lugar("Lugar", "Descripción", task.getResult().getId()), image);
-                }
-            }
-        });
+        crearRecursivamente(true);
         final String randomString = getRandomString();
+        lugar.setImage(randomString);
         if (image == null) {
-            lugar.setImage(DEFAULT_URL);
-            mainPlaceCollection.document(randomString).set(lugar);
+            uploadImage(randomString, DEFAULT_IMAGE_RESOURCE).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    mainPlaceCollection.document(randomString).set(lugar);
+                }
+            });
         } else {
-            lugar.setImage(randomString);
             uploadImage(randomString, image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -286,9 +273,7 @@ public class Operations {
             uploadImage(newLugar.getImage(), image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        updateMainPlace(newLugar, key);
-                    }
+                    updateMainPlace(newLugar, key);
                 }
             });
         }
@@ -308,6 +293,27 @@ public class Operations {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(applicationContext, "No se ha podido borrar el lugar destacado", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private static void crearRecursivamente(boolean includePlace) {
+        if (includePlace) {
+            placeDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (!task.getResult().exists()) {
+                        placeDocument.set(new Lugar("Lugar", "Descripción", placeDocument.getId()));
+                    }
+                }
+            });
+        }
+        cityDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (!task.getResult().exists()) {
+                    cityDocument.set(new Ciudad("Ciudad", "País", cityDocument.getId()));
+                }
             }
         });
     }

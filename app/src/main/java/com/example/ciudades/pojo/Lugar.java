@@ -1,4 +1,4 @@
-package com.example.ciudades.com.example.ciudades.pojo;
+package com.example.ciudades.pojo;
 
 public class Lugar {
     String lugar;

@@ -1,7 +1,6 @@
-package com.example.ciudades.com.example.ciudades.fragments;
+package com.example.ciudades.fragments;
 
 import android.content.Intent;
-import android.media.VolumeShaper;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,7 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.ciudades.Operations;
 import com.example.ciudades.R;
-import com.example.ciudades.com.example.ciudades.pojo.Usuario;
+import com.example.ciudades.pojo.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

@@ -1,4 +1,4 @@
-package com.example.ciudades.com.example.ciudades.fragments;
+package com.example.ciudades.fragments;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -19,13 +19,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ciudades.Operations;
 import com.example.ciudades.R;
-import com.example.ciudades.com.example.ciudades.adaptadores.AdaptadorLugaresDestacados;
-import com.example.ciudades.com.example.ciudades.pojo.Ciudad;
-import com.example.ciudades.com.example.ciudades.pojo.Lugar;
-import com.example.ciudades.com.example.ciudades.pojo.LugarDestacado;
+import com.example.ciudades.adaptadores.AdaptadorLugaresDestacados;
+import com.example.ciudades.pojo.Lugar;
+import com.example.ciudades.pojo.LugarDestacado;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -46,6 +46,8 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
     private AlertDialog dialog;
     private RecyclerView recycler;
     private AdaptadorLugaresDestacados adaptador;
+    private boolean isFABOpen;
+    private FloatingActionButton fab1, fab2, fab;
 
     public FragmentEditLugar(Operations.Accion accion, Lugar lugar, String key) {
         this.accion = accion;
@@ -96,13 +98,32 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
             }
         });
 
-        v.findViewById(R.id.fabLugaresDestacados).setOnClickListener(new View.OnClickListener() {
+        fab1 = v.findViewById(R.id.fabA);
+        fab1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getParentFragmentManager()
                         .beginTransaction()
                         .add(R.id.fragment_container, new LugarDestacadoFragment(null, null, Operations.Accion.ADD_REQUEST))
                         .addToBackStack(null).commit();
+            }
+        });
+        fab2 = v.findViewById(R.id.fabB);
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adaptador.notifyDataSetChanged();
+            }
+        });
+        fab = v.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isFABOpen) {
+                    showFABMenu();
+                } else {
+                    closeFABMenu();
+                }
             }
         });
 
@@ -120,6 +141,20 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
         });
 
         return v;
+    }
+
+    private void closeFABMenu() {
+        isFABOpen = false;
+        fab.animate().rotation(0);
+        fab1.animate().translationY(0);
+        fab2.animate().translationY(0);
+    }
+
+    private void showFABMenu() {
+        isFABOpen = true;
+        fab.animate().rotation(180);
+        fab1.animate().translationY(-160);
+        fab2.animate().translationY(-320);
     }
 
     private void inicializarAdaptador() {

@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
     android:animateLayoutChanges="true"
+    android:background="@android:color/white"
     android:clickable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -66,36 +66,22 @@
             android:text="Lugares"
             android:textAlignment="center"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
-            app:layout_constraintBottom_toTopOf="@id/frameRecycler"
+            app:layout_constraintBottom_toTopOf="@id/recycler_lugares"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/viewA" />
 
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/frameRecycler"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_lugares"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.5"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_lugares"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fabLugares"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:src="@android:drawable/ic_input_add"
-                android:layout_gravity="bottom|end"/>
-
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -108,4 +94,28 @@
         android:text="Aceptar"
         app:layout_anchor="@id/viewA"
         app:layout_anchorGravity="bottom|right|end" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/fabA"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_input_add"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/fabB"
+        android:layout_margin="16dp"
+        android:src="@drawable/baseline_refresh_24"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/fab"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/arrow_up_float"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

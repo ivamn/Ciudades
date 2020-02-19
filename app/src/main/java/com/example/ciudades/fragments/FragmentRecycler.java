@@ -1,4 +1,4 @@
-package com.example.ciudades.com.example.ciudades.fragments;
+package com.example.ciudades.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,11 +16,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ciudades.Operations;
 import com.example.ciudades.R;
-import com.example.ciudades.com.example.ciudades.adaptadores.Adaptador;
-import com.example.ciudades.com.example.ciudades.pojo.Ciudad;
+import com.example.ciudades.adaptadores.Adaptador;
+import com.example.ciudades.pojo.Ciudad;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -31,6 +32,8 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
     private RecyclerView recyclerView;
     private Adaptador adaptador;
     private DocumentReference userReference;
+    private boolean isFABOpen;
+    private FloatingActionButton fab1, fab2, fab;
 
     @Nullable
     @Override
@@ -39,15 +42,48 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
         View view = inflater.inflate(R.layout.fragment_recycler, container, false);
         userReference = FirebaseFirestore.getInstance().collection("usuarios")
                 .document(Operations.user.getEmail());
-        recyclerView = view.findViewById(R.id.recycler);
-        inicializarAdaptador();
-            view.findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+        fab1 = view.findViewById(R.id.fabA);
+        fab1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mostrarFragmentEdit(Operations.Accion.ADD_REQUEST, null, null);
+                mostrarFragmentEdit(Operations.Accion.ADD_ACTION, null, null);
+            }
+        });
+        fab2 = view.findViewById(R.id.fabB);
+        fab2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adaptador.notifyDataSetChanged();
+            }
+        });
+        recyclerView = view.findViewById(R.id.recycler);
+        inicializarAdaptador();
+        fab = view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isFABOpen) {
+                    showFABMenu();
+                } else {
+                    closeFABMenu();
+                }
             }
         });
         return view;
+    }
+
+    private void closeFABMenu() {
+        isFABOpen = false;
+        fab.animate().rotation(0);
+        fab1.animate().translationY(0);
+        fab2.animate().translationY(0);
+    }
+
+    private void showFABMenu() {
+        isFABOpen = true;
+        fab.animate().rotation(180);
+        fab1.animate().translationY(-160);
+        fab2.animate().translationY(-320);
     }
 
     private void mostrarFragmentEdit(Operations.Accion accion, Ciudad ciudad, String key) {

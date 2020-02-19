@@ -1,4 +1,4 @@
-package com.example.ciudades.com.example.ciudades.adaptadores;
+package com.example.ciudades.adaptadores;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ciudades.Operations;
 import com.example.ciudades.R;
-import com.example.ciudades.com.example.ciudades.pojo.LugarDestacado;
+import com.example.ciudades.pojo.LugarDestacado;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.storage.FirebaseStorage;
