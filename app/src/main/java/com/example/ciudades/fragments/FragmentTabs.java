@@ -20,14 +20,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 public class FragmentTabs extends Fragment {
 
-    private TabLayout tabs;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.tabs_fragment, container, false);
-        tabs = v.findViewById(R.id.tab_layout);
+        // Creación e inicialización de las tabs
+        TabLayout tabs = v.findViewById(R.id.tab_layout);
         final ViewPager pager = v.findViewById(R.id.view_pager);
         PagerAdapterImplementation adapter = new PagerAdapterImplementation(getActivity().getSupportFragmentManager(), 2);
         tabs.setupWithViewPager(pager);
@@ -47,6 +46,7 @@ public class FragmentTabs extends Fragment {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+        // Si es la primera vez del usuario, muestra la pantalla del perfil
         Operations.userDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

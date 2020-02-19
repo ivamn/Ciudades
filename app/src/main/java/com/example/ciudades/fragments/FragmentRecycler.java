@@ -40,13 +40,14 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_recycler, container, false);
+        // Inicialización de la colección de ciudades del usuario en la clase estática
         userReference = FirebaseFirestore.getInstance().collection("usuarios")
                 .document(Operations.user.getEmail());
         fab1 = view.findViewById(R.id.fabA);
         fab1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mostrarFragmentEdit(Operations.Accion.ADD_ACTION, null, null);
+                mostrarFragmentEdit(Operations.Accion.ADD_REQUEST, null, null);
             }
         });
         fab2 = view.findViewById(R.id.fabB);
@@ -56,8 +57,6 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
                 adaptador.notifyDataSetChanged();
             }
         });
-        recyclerView = view.findViewById(R.id.recycler);
-        inicializarAdaptador();
         fab = view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +68,8 @@ public class FragmentRecycler extends Fragment implements View.OnClickListener, 
                 }
             }
         });
+        recyclerView = view.findViewById(R.id.recycler);
+        inicializarAdaptador();
         return view;
     }
 

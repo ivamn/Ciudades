@@ -57,14 +57,6 @@ public class Operations {
     }
 
     public static void deleteCity(final String key) {
-        cityCollection.document(key).collection("lugares").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                for (DocumentSnapshot d : task.getResult().getDocuments()) {
-                    cityCollection.document(key).collection("lugares").document(d.getId()).delete();
-                }
-            }
-        });
         cityCollection.document(key).delete().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -131,6 +123,15 @@ public class Operations {
         }
     }
 
+    private static String getRandomString() {
+        StringBuilder builder = new StringBuilder();
+        Random r = new Random();
+        for (int i = 0; i < 15; i++) {
+            builder.append(r.nextInt(50));
+        }
+        return builder.toString();
+    }
+
     public static void addPlace(final Lugar lugar, final Uri image) {
         crearRecursivamente(false);
         final String randomString = getRandomString();
@@ -152,17 +153,7 @@ public class Operations {
         }
     }
 
-    private static String getRandomString() {
-        StringBuilder builder = new StringBuilder();
-        Random r = new Random();
-        for (int i = 0; i < 15; i++) {
-            builder.append(r.nextInt(50));
-        }
-        return builder.toString();
-    }
-
     private static void updateCity(Ciudad newCity, String documentKey) {
-        int i = 0;
         cityCollection.document(documentKey).set(newCity).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
@@ -180,20 +171,6 @@ public class Operations {
         });
     }
 
-    public static void updateCity(final Ciudad newCity, final String key, Uri image) {
-        if (image == null) {
-            newCity.setImagen(DEFAULT_URL);
-            updateCity(newCity, key);
-        } else {
-            uploadImage(newCity.getImagen(), image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                    updateCity(newCity, key);
-                }
-            });
-        }
-    }
-
     public static void updatePlace(final Lugar newLugar, final String key, Uri image) {
         if (image == null) {
             newLugar.setImagen(DEFAULT_URL);
@@ -203,6 +180,20 @@ public class Operations {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     updatePlace(newLugar, key);
+                }
+            });
+        }
+    }
+
+    public static void updateCity(final Ciudad newCity, final String key, Uri image) {
+        if (image == null) {
+            newCity.setImagen(DEFAULT_URL);
+            updateCity(newCity, key);
+        } else {
+            uploadImage(newCity.getImagen(), image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    updateCity(newCity, key);
                 }
             });
         }
@@ -318,5 +309,5 @@ public class Operations {
         });
     }
 
-    public enum Accion {ADD_REQUEST, ADD_ACTION, EDIT_REQUEST, EDIT_ACTION, DELETE}
+    public enum Accion {ADD_REQUEST, EDIT_REQUEST}
 }

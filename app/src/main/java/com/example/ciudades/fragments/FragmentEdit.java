@@ -46,7 +46,6 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
     private Uri selectedImage;
     private RecyclerView recycler;
     private AdaptadorLugares adaptador;
-    private AlertDialog dialog;
     private boolean isFABOpen;
     private FloatingActionButton fab1, fab2, fab;
 
@@ -60,7 +59,6 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        showProgressBar();
         View v = inflater.inflate(R.layout.edit_fragment, container, false);
         editCiudad = v.findViewById(R.id.editCiudad);
         pais = v.findViewById(R.id.editPais);
@@ -85,7 +83,6 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
                     if (task.isSuccessful()) {
                         selectedImage = task.getResult();
                     }
-                    dialog.cancel();
                 }
             });
             editCiudad.setText(ciudad.getCiudad());
@@ -164,14 +161,6 @@ public class FragmentEdit extends Fragment implements View.OnClickListener, View
         ft.add(R.id.fragment_container, fragment)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    private void showProgressBar() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setView(getLayoutInflater().inflate(R.layout.progress, null));
-        builder.setCancelable(false);
-        dialog = builder.create();
-
     }
 
     private void inicializarAdaptador() {

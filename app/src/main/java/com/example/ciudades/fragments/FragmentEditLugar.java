@@ -36,14 +36,12 @@ import static android.app.Activity.RESULT_OK;
 public class FragmentEditLugar extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
     private static final int COD_ELEGIR_IMAGEN = 0;
-    private static final int COD_ELEGIR_IMAGEN_LUGAR = 1;
     private EditText editLugar, editDescripcion;
     private ImageView imageView;
     private Operations.Accion accion;
     private Lugar lugar;
     private String key;
     private Uri selectedImage;
-    private AlertDialog dialog;
     private RecyclerView recycler;
     private AdaptadorLugaresDestacados adaptador;
     private boolean isFABOpen;
@@ -60,7 +58,6 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.edit_lugar_fragment, container, false);
-        showProgressBar();
         recycler = v.findViewById(R.id.recycler_lugares_fotos);
         editLugar = v.findViewById(R.id.editLugar);
         editDescripcion = v.findViewById(R.id.editDescripcion);
@@ -72,7 +69,6 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
                     if (task.isSuccessful()) {
                         selectedImage = task.getResult();
                     }
-                    dialog.cancel();
                 }
             });
             editLugar.setText(lugar.getLugar());
@@ -183,14 +179,6 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
         recycler.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
     }
 
-    private void showProgressBar() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setView(getLayoutInflater().inflate(R.layout.progress, null));
-        builder.setCancelable(false);
-        dialog = builder.create();
-
-    }
-
     private Lugar generarLugar() {
         return new Lugar(editLugar.getEditableText().toString(), editDescripcion.getText().toString(), key);
     }
@@ -201,9 +189,6 @@ public class FragmentEditLugar extends Fragment implements View.OnClickListener,
         if (requestCode == COD_ELEGIR_IMAGEN && resultCode == RESULT_OK) {
             selectedImage = data.getData();
             imageView.setImageURI(selectedImage);
-        } else if (requestCode == COD_ELEGIR_IMAGEN_LUGAR && resultCode == RESULT_OK) {
-            Uri u = data.getData();
-            Operations.addMainPlace(new LugarDestacado(), u);
         } else if (resultCode == RESULT_CANCELED) {
             Toast.makeText(getActivity(), "Se ha cancelado la operación", Toast.LENGTH_SHORT).show();
         }
